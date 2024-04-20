@@ -1,2 +1,3 @@
-# EstructurasDeDatos
-ejercicios_de_clase
+# Autores
+-Juan Pablo Cardona Bedoya
+-Felipe Villa Jaramillo
