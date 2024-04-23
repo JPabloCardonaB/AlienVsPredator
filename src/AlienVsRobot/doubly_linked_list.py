@@ -147,3 +147,13 @@ class DoublyLinkedList:
       self.tail = None
       self.length = 0
 
+
+lll = DoublyLinkedList()
+
+lll.append(1)
+lll.append(2)
+print(lll)
+lll.remove(0)
+print(lll)
+lll.insert(3,0)
+print(lll)
