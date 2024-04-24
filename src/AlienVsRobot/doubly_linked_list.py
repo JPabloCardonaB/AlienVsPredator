@@ -1,3 +1,9 @@
+'''
+Archivo con la lógica de la lista doblemente enlazada
+'''
+
+
+
 class Node:
     __slots__ = 'value', 'next','prev'
 
@@ -67,7 +73,7 @@ class DoublyLinkedList:
       if index== 0:
         self.prepend(value)
         return True
-      elif index ==-1 or index == self.length-1:
+      elif index ==-1 or index == self.length:
         self.append(value)
         return True
       elif index < -1 or index > self.length-1:
@@ -146,14 +152,3 @@ class DoublyLinkedList:
       self.head = None
       self.tail = None
       self.length = 0
-
-
-lll = DoublyLinkedList()
-
-lll.append(1)
-lll.append(2)
-print(lll)
-lll.remove(0)
-print(lll)
-lll.insert(3,0)
-print(lll)
