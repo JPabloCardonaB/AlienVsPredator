@@ -1,3 +1,3 @@
 # Autores
--Juan Pablo Cardona Bedoya
--Felipe Villa Jaramillo
+- Juan Pablo Cardona Bedoya
+- Felipe Villa Jaramillo

@@ -2,25 +2,30 @@ import sys
 sys.path.append('src/')
 
 from random import randint
-from doubly_linked_list import DoublyLinkedList
-from alien import Alien
-from predator import Predator
+from AlienVsRobot.doubly_linked_list import DoublyLinkedList
+from AlienVsRobot.alien import Alien
+from AlienVsRobot.predator import Predator
 
 class AlienVsPredator:
 
     def __init__(self):
-        self.game_board = DoublyLinkedList()
+        self.game_board = None
         self.game_boar_size : tuple = None
         self.alien = Alien()
         self.predator = Predator()
-        self.actual_turn = 1
+        self.actual_turn = 2
 
     def show_game_board(self):
         for row in self.game_board:
             print(row)
 
+    def reset_life(self):
+        self.alien.life = 50
+        self.predator.life = 50
+    
     def create_game_board(self, difficulty, board_size: tuple):
 
+        self.game_board = DoublyLinkedList()
         self.game_board_size = board_size
 
         rows = self.game_board_size[0]
@@ -90,13 +95,17 @@ class AlienVsPredator:
                 break
 
     # Asigna la posicion elegida del alien en el tablero
-    def set_alien_position(self, row: int, column: int):
+    def set_alien_position(self, row: int, column: int) -> bool:
 
+        row = row - 1
+        column = column - 1
         if self.game_board.get(row).value.get(column).value == ' ':
             self.game_board.get(row).value.remove(column)
-            self.game_board.get(row).value.insert(self.alien,column) 
+            self.game_board.get(row).value.insert(self.alien,column)
+            return True
         else:
             print('La casilla está ocupada o es inválida.')
+            return False
 
     def get_predator_actual_position(self):
         for i in range(0,self.game_board_size[0],1):
@@ -179,7 +188,7 @@ class AlienVsPredator:
                 self.game_board.get(predator_position[0] - 1).value.insert(self.predator,predator_position[1])
 
         #Evalua si esta el predator entra en la casilla del alien y le resta 25 de vida
-        elif self.game_board.get(predator_position[0] -1).value.get(predator_position[1]) == self.alien:
+        elif self.game_board.get(predator_position[0] -1).value.get(predator_position[1]).value == self.alien:
             self.alien.decrease_life(25)
             self.game_board.get(predator_position[0]).value.remove(predator_position[1])
             self.game_board.get(predator_position[0]).value.insert(' ',predator_position[1])
@@ -251,7 +260,7 @@ class AlienVsPredator:
                 self.game_board.get(predator_position[0] + 1).value.insert(self.predator,predator_position[1])
 
         #Evalua si esta el predator entra en la casilla del alien y le resta 25 de vida
-        elif self.game_board.get(predator_position[0] +1).value.get(predator_position[1]) == self.alien:
+        elif self.game_board.get(predator_position[0] +1).value.get(predator_position[1]).value == self.alien:
             
             self.alien.decrease_life(25)
             self.game_board.get(predator_position[0]).value.remove(predator_position[1])
@@ -407,33 +416,36 @@ class AlienVsPredator:
     def make_predator_move(self):
         # 1 = Arriba, 2 = Abajo, 3 = Izquierda, 4 = Derecha
         random_direction = randint(1,4)
-        print(f'direccion = {random_direction}')
         predator_position = self.get_predator_actual_position()
 
         if random_direction == 1:
             if predator_position[0] == 0:
-                return 'No se puede mover hacia arriba'
+                return 'El depredador no se puede mover hacia arriba'
             
             else:
                 self.make_predator_move_above(predator_position)
+                return ('Movimiento exitoso hacia arriba')
 
         elif random_direction == 2:
             if predator_position[0] == self.game_board_size[1] - 1:
-                return 'No se puede mover hacia abajo' 
+                return 'El depredador no se puede mover hacia abajo' 
             else:
                 self.make_predator_move_below(predator_position)
+                return ('Movimiento exitoso hacia abajo')
                     
         elif random_direction == 3:
             if predator_position[1] == 0:
-                return 'No se puede mover hacia la izquierda'
+                return 'El depredador no se puede mover hacia la izquierda'
             else:
                 self.make_predator_move_left(predator_position)
+                return ('Movimiento exitoso hacia la izquierda')
 
         elif random_direction == 4:
             if predator_position[1] == self.game_board_size[0] - 1:
-                return 'No se puede mover hacia la derecha'
+                return 'El depredador no se puede mover hacia la derecha'
             else:
                 self.make_predator_move_right(predator_position)
+                return ('Movimiento exitoso hacia la derecha')
 
     def make_alien_move(self, direction : str):
         # w = arriba, s = abajo, a = izquierda, d = derecha
@@ -445,24 +457,28 @@ class AlienVsPredator:
             
             else:
                 self.make_alien_move_above(alien_position)
+                return ('Movimiento exitoso hacia arriba')
 
         elif direction.lower() == 's':
             if alien_position[0] == self.game_board_size[1] - 1:
                 return 'No se puede mover hacia abajo' 
             else:
                 self.make_alien_move_below(alien_position)
+                return ('Movimiento exitoso hacia abajo')
                     
         elif direction.lower() == 'a':
             if alien_position[1] == 0:
                 return 'No se puede mover hacia la izquierda'
             else:
                 self.make_alien_move_left(alien_position)
+                return ('Movimiento exitoso hacia la izquierda')
 
         elif direction.lower() == "d":
             if alien_position[1] == self.game_board_size[0] - 1:
                 return 'No se puede mover hacia la derecha'
             else:
                 self.make_alien_move_right(alien_position)
+                return ('Movimiento exitoso hacia la derecha')
 
     def make_alien_move_above(self, alien_position: tuple):
         if self.game_board.get(alien_position[0] - 1).value.get(alien_position[1]).value == ' ':
@@ -509,7 +525,7 @@ class AlienVsPredator:
 
             self.game_board.get(alien_position[0]).value.remove(alien_position[1])
             self.game_board.get(alien_position[0]).value.insert(' ',alien_position[1])
-            self.game_board_size.get(alien_position[0] - 1).value.remove(alien_position[1])
+            self.game_board.get(alien_position[0] - 1).value.remove(alien_position[1])
             self.game_board.get(alien_position[0] - 1).value.insert((f'{self.predator} {self.alien}'),alien_position[1])
     
     def make_alien_move_below(self, alien_position: tuple):
@@ -661,42 +677,169 @@ class AlienVsPredator:
     def get_turn(self):
         
         if self.actual_turn == 1:
-            self.actual_turn == 2
+            self.actual_turn = 2
+            return 1
 
-        else:
-            self.actual_turn == 1
+        elif self.actual_turn == 2:
+            self.actual_turn = 1
+            return 2
 
     def check_winner(self):
         if self.predator.life <= 0:
-            print('El Alien ha ganado')
+            print('El Alien ha ganado 🗣️🗣️❗❗')
+            self.reset_life()
             return True
         
         elif self.alien.life <= 0:
-            print('El Depredador ha ganado')
+            print('El Depredador ha ganado 🗣️🗣️❗❗')
+            self.reset_life()
             return True
         
         return False
-  
-    def attack_predator(self, alien_position: tuple):
 
-        #Verificar si está adyacente a la derecha
-        if self.game_board.get(alien_position[0]).value.get(alien_position[1]).next.value == self.predator:
-            self.predator.decrease_life(10)
+
+    def attack_predator_position(self,alien_position: tuple):
+        # w = arriba, s = abajo, a = izquierda, d = derecha
+
+        #abajo esquina derecha penultima
+        if alien_position[0] == self.game_board_size[0] -1 and alien_position[1] == self.game_board_size[1] - 2:
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            #derecha
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
         
-        #Verificar si está adyacente a la izquierda
-        elif self.game_board.get(alien_position[0]).value.get(alien_position[1]).prev.value == self.predator:
-            self.predator.decrease_life(10)
+        #abajo esquina derecha
+        if alien_position[0] == self.game_board_size[0] -1 and alien_position[1] == self.game_board_size[1] - 1:
+            #Arriba
+            if self.game_board.get(alien_position[0] - 1).value.get(alien_position[1]).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
+        #abajo esquina izquierda penultima
+        if alien_position[0] == self.game_board_size[0] -1 and alien_position[1] == 1:
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            #derecha
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            
+        #abajo esquina izquierda
+        if alien_position[0] == self.game_board_size[0] -1 and alien_position[1] == 0:
+            #Arriba
+            if self.game_board.get(alien_position[0] - 1).value.get(alien_position[1]).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            
+            #derecha
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            
+        # arriba esquina izquierda penultima
+        if alien_position[0] == 0 and alien_position[1] == 1:
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            #derecha
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            
+        # arriba esquina izquierda
+        if alien_position[0] == 0 and alien_position[1] == 0:
+            #derecha
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
+            #Abajo
+            if self.game_board.get(alien_position[0] + 1).value.get(alien_position[1]).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            
+        # arriba esquina derecha penultima
+        if alien_position[0] == 0 and alien_position[1] == self.game_board_size[1] - 2:
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            #derecha
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+        # arriba esquina derecha
+        if alien_position[0] == 0 and alien_position[1] == self.game_board_size[1] - 1:
+
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
+            #Abajo
+            if self.game_board.get(alien_position[0] + 1).value.get(alien_position[1]).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
+        if alien_position[0] == 0:
+            #Abajo
+            if self.game_board.get(alien_position[0] + 1).value.get(alien_position[1]).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
         
-        # Verificar si está adyacente aririba
-        elif self.game_board.get(alien_position[0]).prev.value.get(alien_position[1]).value == self.predator:
-            self.predator.decrease_life(10)
+        if alien_position[0] == self.game_board_size[0] - 1:
+            #Arriba
+            if self.game_board.get(alien_position[0] - 1).value.get(alien_position[1]).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
 
-        # Verificar si está adyacente abajo
-        elif self.game_board.get(alien_position[0]).next.value.get(alien_position[1]).value == self.predator:
-            self.predator.decrease_life(10)
 
+        if alien_position[1] == 0:
+            #Derecha
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
+                    
+        if alien_position[1] == self.game_board_size[1] - 1:
+
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            
         else:
-            return 'No puedes atacar al depredador. Pierdes el turno'
+
+            #Arriba
+            if self.game_board.get(alien_position[0] - 1).value.get(alien_position[1]).value == self.predator:
+             
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
+            #Abajo
+            if self.game_board.get(alien_position[0] + 1).value.get(alien_position[1]).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+            #Izquierda
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] - 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
+
+            if self.game_board.get(alien_position[0]).value.get(alien_position[1] + 1).value == self.predator:
+                self.predator.decrease_life(10)
+                return 'Ataque exitoso'
         
     def show_players_health(self) -> str:
         return (f'Depredador: {self.predator.life} | Alien: {self.alien.life}')

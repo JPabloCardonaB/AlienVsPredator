@@ -2,6 +2,9 @@ import sys
 
 sys.path.append('src')
 
+from console.console import ConsoleUI
+
 
 if __name__ == '__main__':
-    print('Hello World')
+    console = ConsoleUI()
+    console.run_application()
